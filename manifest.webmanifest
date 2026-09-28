@@ -1,0 +1,10 @@
+{
+  "name": "Bac Bo Analisador",
+  "short_name": "Bac Bo",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#111827",
+  "lang": "pt",
+  "description": "Analisador estatístico de resultados de Bac Bo"
+}
