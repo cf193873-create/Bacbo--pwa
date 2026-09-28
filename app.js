@@ -1,512 +1,773 @@
-const KEY = "bacbo_history_v2";
+// =====================================================
+// BAC BO LIVE - APP.JS
+// =====================================================
 
-let history = JSON.parse(
-  localStorage.getItem(KEY) || "[]"
-);
+"use strict";
+
+// -----------------------------
+// CONFIGURAÇÃO
+// -----------------------------
+
+const STORAGE_KEY = "bacbo_results";
+const MAX_HISTORY = 200;
+
+// -----------------------------
+// ESTADO
+// -----------------------------
+
+let results = loadResults();
+
+// -----------------------------
+// ELEMENTOS
+// -----------------------------
+
+const historyElement =
+    document.getElementById("history");
+
+const playerCountElement =
+    document.getElementById("playerCount") ||
+    document.getElementById("cp");
+
+const bankerCountElement =
+    document.getElementById("bankerCount") ||
+    document.getElementById("cb");
+
+const tieCountElement =
+    document.getElementById("tieCount") ||
+    document.getElementById("ce");
+
+const totalElement =
+    document.getElementById("total");
+
+const signalElement =
+    document.getElementById("signal");
+
+const confidenceElement =
+    document.getElementById("confidence");
+
+const reasonElement =
+    document.getElementById("reason");
+
+const streakElement =
+    document.getElementById("streak");
 
 
-// ==============================
-// GUARDAR
-// ==============================
+// =====================================================
+// ARMAZENAMENTO
+// =====================================================
 
-function save() {
-  localStorage.setItem(
-    KEY,
-    JSON.stringify(history)
-  );
+function loadResults() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(STORAGE_KEY);
+
+        if (!saved) {
+            return [];
+        }
+
+        const data = JSON.parse(saved);
+
+        if (!Array.isArray(data)) {
+            return [];
+        }
+
+        return data.filter(function (item) {
+
+            return (
+                item === "P" ||
+                item === "B" ||
+                item === "E"
+            );
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar resultados:",
+            error
+        );
+
+        return [];
+    }
 }
 
 
-// ==============================
+function saveResults() {
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(results)
+    );
+}
+
+
+// =====================================================
 // ADICIONAR RESULTADO
-// ==============================
+// =====================================================
 
 function addResult(result) {
 
-  history.push(result);
-
-  // Mantém no máximo 500 resultados
-  if (history.length > 500) {
-    history = history.slice(-500);
-  }
-
-  save();
-  render();
-}
-
-
-// ==============================
-// DESFAZER
-// ==============================
-
-function undo() {
-
-  if (history.length === 0) {
-    return;
-  }
-
-  history.pop();
-
-  save();
-  render();
-}
-
-
-// ==============================
-// LIMPAR
-// ==============================
-
-function clearAll() {
-
-  if (history.length === 0) {
-    return;
-  }
-
-  const ok = confirm(
-    "Apagar todo o histórico?"
-  );
-
-  if (!ok) {
-    return;
-  }
-
-  history = [];
-
-  save();
-  render();
-}
-
-
-// ==============================
-// PERCENTAGEM
-// ==============================
-
-function percentage(value, total) {
-
-  if (!total) {
-    return 0;
-  }
-
-  return Math.round(
-    (value / total) * 100
-  );
-}
-
-
-// ==============================
-// ANÁLISE DO HISTÓRICO
-// ==============================
-
-function analyze() {
-
-  const totalResults = history.length;
-
-
-  // Ainda não há dados suficientes
-  if (totalResults < 10) {
-
-    return {
-      signal: "—",
-      confidence: 0,
-      reason:
-        "Introduza pelo menos 10 resultados."
-    };
-  }
-
-
-  // Últimas 20 rodadas
-  const recent = history.slice(-20);
-
-  const total = recent.length;
-
-
-  // Contagens
-  const player =
-    recent.filter(
-      result => result === "P"
-    ).length;
-
-  const banker =
-    recent.filter(
-      result => result === "B"
-    ).length;
-
-  const empate =
-    recent.filter(
-      result => result === "E"
-    ).length;
-
-
-  // Percentagens
-  const playerRate =
-    player / total;
-
-  const bankerRate =
-    banker / total;
-
-
-  // Últimas 5 rodadas
-  const last5 = recent.slice(-5);
-
-  const player5 =
-    last5.filter(
-      result => result === "P"
-    ).length;
-
-  const banker5 =
-    last5.filter(
-      result => result === "B"
-    ).length;
-
-
-  /*
-    Modelo simples e transparente:
-
-    85% frequência das últimas 20
-    15% frequência das últimas 5
-
-    Isto NÃO significa que a próxima rodada
-    possa ser prevista com certeza.
-  */
-
-  const playerScore =
-    (playerRate * 85) +
-    ((player5 / 5) * 15);
-
-  const bankerScore =
-    (bankerRate * 85) +
-    ((banker5 / 5) * 15);
-
-
-  const difference =
-    Math.abs(
-      playerScore - bankerScore
-    );
-
-
-  let signal = "—";
-  let confidence = 0;
-
-
-  /*
-    Só gera sinal quando existe
-    uma diferença mínima entre os lados.
-  */
-
-  if (
-    difference >= 12 &&
-    Math.max(
-      playerScore,
-      bankerScore
-    ) >= 48
-  ) {
-
     if (
-      playerScore >
-      bankerScore
+        result !== "P" &&
+        result !== "B" &&
+        result !== "E"
     ) {
-
-      signal = "P";
-
-    } else {
-
-      signal = "B";
-
+        return;
     }
 
-    confidence =
-      Math.round(
-        50 + (difference * 0.8)
-      );
+    results.push(result);
 
-    // Limites de segurança
-    confidence =
-      Math.max(
-        55,
-        Math.min(
-          88,
-          confidence
-        )
-      );
+    if (results.length > MAX_HISTORY) {
+        results.shift();
+    }
 
-  } else {
+    saveResults();
 
-    signal = "—";
-
-    confidence =
-      Math.min(
-        54,
-        Math.round(
-          50 + difference
-        )
-      );
-  }
-
-
-  let reason;
-
-
-  if (signal === "P") {
-
-    reason =
-      "PLAYER apresenta maior peso estatístico recente.";
-
-  } else if (signal === "B") {
-
-    reason =
-      "BANKER apresenta maior peso estatístico recente.";
-
-  } else {
-
-    reason =
-      "Dados demasiado equilibrados — aguardar.";
-  }
-
-
-  return {
-    signal,
-    confidence,
-    reason
-  };
+    updateApp();
 }
 
 
-// ==============================
-// DESENHAR HISTÓRICO
-// ==============================
+// =====================================================
+// DESFAZER
+// =====================================================
+
+function undoResult() {
+
+    if (results.length === 0) {
+        return;
+    }
+
+    results.pop();
+
+    saveResults();
+
+    updateApp();
+}
+
+
+// =====================================================
+// LIMPAR
+// =====================================================
+
+function clearResults() {
+
+    if (results.length === 0) {
+        return;
+    }
+
+    const confirmed =
+        confirm(
+            "Deseja apagar todo o histórico?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    results = [];
+
+    saveResults();
+
+    updateApp();
+}
+
+
+// =====================================================
+// CONTADORES
+// =====================================================
+
+function getCounts() {
+
+    let player = 0;
+    let banker = 0;
+    let tie = 0;
+
+    results.forEach(function (result) {
+
+        if (result === "P") {
+            player++;
+        }
+
+        if (result === "B") {
+            banker++;
+        }
+
+        if (result === "E") {
+            tie++;
+        }
+
+    });
+
+    return {
+        player,
+        banker,
+        tie
+    };
+}
+
+
+// =====================================================
+// ESTATÍSTICAS
+// =====================================================
+
+function updateStats() {
+
+    const counts = getCounts();
+
+    if (playerCountElement) {
+        playerCountElement.textContent =
+            counts.player;
+    }
+
+    if (bankerCountElement) {
+        bankerCountElement.textContent =
+            counts.banker;
+    }
+
+    if (tieCountElement) {
+        tieCountElement.textContent =
+            counts.tie;
+    }
+
+    if (totalElement) {
+        totalElement.textContent =
+            results.length;
+    }
+
+    updateStreak();
+}
+
+
+// =====================================================
+// SEQUÊNCIA
+// =====================================================
+
+function getCurrentStreak() {
+
+    if (results.length === 0) {
+
+        return {
+            result: "-",
+            count: 0
+        };
+    }
+
+    const last =
+        results[results.length - 1];
+
+    let count = 0;
+
+    for (
+        let i = results.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        if (results[i] === last) {
+            count++;
+        } else {
+            break;
+        }
+    }
+
+    return {
+        result: last,
+        count
+    };
+}
+
+
+function updateStreak() {
+
+    if (!streakElement) {
+        return;
+    }
+
+    const streak =
+        getCurrentStreak();
+
+    if (streak.count === 0) {
+
+        streakElement.textContent =
+            "-";
+
+        return;
+    }
+
+    streakElement.textContent =
+        streak.result +
+        " × " +
+        streak.count;
+}
+
+
+// =====================================================
+// HISTÓRICO VISUAL
+// =====================================================
 
 function renderHistory() {
 
-  const historyElement =
-    document.getElementById(
-      "history"
-    );
-
-
-  const visible =
-    history.slice(-60);
-
-
-  historyElement.innerHTML = "";
-
-
-  visible.forEach(
-    (result, index) => {
-
-      const dot =
-        document.createElement(
-          "span"
-        );
-
-
-      dot.classList.add(
-        "dot"
-      );
-
-
-      if (result === "P") {
-        dot.classList.add("p");
-      }
-
-      if (result === "B") {
-        dot.classList.add("b");
-      }
-
-      if (result === "E") {
-        dot.classList.add("e");
-      }
-
-
-      dot.textContent = result;
-
-
-      dot.title =
-        "Resultado " +
-        (
-          history.length -
-          visible.length +
-          index +
-          1
-        );
-
-
-      historyElement.appendChild(
-        dot
-      );
+    if (!historyElement) {
+        return;
     }
-  );
+
+    historyElement.innerHTML = "";
+
+    results.forEach(function (result) {
+
+        const circle =
+            document.createElement("div");
+
+        circle.classList.add(
+            "result-circle"
+        );
+
+        circle.textContent = result;
+
+        if (result === "P") {
+
+            circle.classList.add(
+                "player"
+            );
+
+        } else if (result === "B") {
+
+            circle.classList.add(
+                "banker"
+            );
+
+        } else {
+
+            circle.classList.add(
+                "tie"
+            );
+        }
+
+        historyElement.appendChild(
+            circle
+        );
+
+    });
+
+    historyElement.scrollLeft =
+        historyElement.scrollWidth;
 }
 
 
-// ==============================
-// ESTATÍSTICAS
-// ==============================
+// =====================================================
+// ANÁLISE
+// =====================================================
 
-function renderStats() {
+function analyse() {
 
-  const total =
-    history.length;
+    const filtered =
+        results.filter(function (result) {
 
+            return (
+                result === "P" ||
+                result === "B"
+            );
 
-  const player =
-    history.filter(
-      result => result === "P"
-    ).length;
+        });
 
+    const lastResults =
+        filtered.slice(-12);
 
-  const banker =
-    history.filter(
-      result => result === "B"
-    ).length;
+    if (lastResults.length < 5) {
 
+        return {
+            signal: "AGUARDAR",
+            confidence: 0,
+            reason:
+                "Introduza pelo menos 5 resultados P/B."
+        };
+    }
 
-  const empate =
-    history.filter(
-      result => result === "E"
-    ).length;
+    const player =
+        lastResults.filter(
+            x => x === "P"
+        ).length;
 
+    const banker =
+        lastResults.filter(
+            x => x === "B"
+        ).length;
 
-  document.getElementById(
-    "pPct"
-  ).textContent =
-    percentage(
-      player,
-      total
-    ) + "%";
+    const total =
+        lastResults.length;
 
+    const playerPercentage =
+        Math.round(
+            player / total * 100
+        );
 
-  document.getElementById(
-    "bPct"
-  ).textContent =
-    percentage(
-      banker,
-      total
-    ) + "%";
+    const bankerPercentage =
+        Math.round(
+            banker / total * 100
+        );
 
+    const lastFive =
+        lastResults.slice(-5);
 
-  document.getElementById(
-    "ePct"
-  ).textContent =
-    percentage(
-      empate,
-      total
-    ) + "%";
+    const playerLastFive =
+        lastFive.filter(
+            x => x === "P"
+        ).length;
 
+    const bankerLastFive =
+        lastFive.filter(
+            x => x === "B"
+        ).length;
 
-  document.getElementById(
-    "roundCount"
-  ).textContent =
-    total;
+    let signal = "AGUARDAR";
+    let confidence = 0;
+    let reason =
+        "Não existe uma tendência estatística clara.";
+
+    if (
+        player > banker &&
+        playerLastFive >= 3
+    ) {
+
+        signal = "P";
+
+        confidence =
+            50 +
+            (player - banker) * 7 +
+            playerLastFive * 3;
+
+        reason =
+            "Tendência recente para Player.";
+
+    } else if (
+        banker > player &&
+        bankerLastFive >= 3
+    ) {
+
+        signal = "B";
+
+        confidence =
+            50 +
+            (banker - player) * 7 +
+            bankerLastFive * 3;
+
+        reason =
+            "Tendência recente para Banker.";
+    }
+
+    confidence =
+        Math.min(
+            95,
+            Math.max(
+                0,
+                Math.round(confidence)
+            )
+        );
+
+    return {
+        signal,
+        confidence,
+        reason,
+        playerPercentage,
+        bankerPercentage
+    };
 }
 
 
-// ==============================
-// SINAL
-// ==============================
+// =====================================================
+// MOSTRAR SINAL
+// =====================================================
 
-function renderSignal() {
+function updateSignal() {
 
-  const result =
-    analyze();
+    if (!signalElement) {
+        return;
+    }
 
+    const analysis =
+        analyse();
 
-  const ball =
-    document.getElementById(
-      "signalBall"
-    );
+    signalElement.textContent =
+        analysis.signal;
 
+    signalElement.className =
+        "signal";
 
-  const text =
-    document.getElementById(
-      "signalText"
-    );
+    if (analysis.signal === "P") {
 
+        signalElement.classList.add(
+            "signal-player"
+        );
 
-  const reason =
-    document.getElementById(
-      "signalReason"
-    );
+    } else if (
+        analysis.signal === "B"
+    ) {
 
+        signalElement.classList.add(
+            "signal-banker"
+        );
 
-  const confidence =
-    document.getElementById(
-      "confidence"
-    );
+    } else {
 
+        signalElement.classList.add(
+            "signal-wait"
+        );
+    }
 
-  const bar =
-    document.getElementById(
-      "confidenceBar"
-    );
+    if (confidenceElement) {
 
+        confidenceElement.textContent =
+            analysis.confidence +
+            "%";
+    }
 
-  // Limpar classes
-  ball.className =
-    "signal-ball";
+    if (reasonElement) {
 
-
-  if (result.signal === "P") {
-
-    ball.classList.add("p");
-
-    ball.textContent = "P";
-
-    text.textContent =
-      "PLAYER";
-
-  }
-
-  else if (
-    result.signal === "B"
-  ) {
-
-    ball.classList.add("b");
-
-    ball.textContent = "B";
-
-    text.textContent =
-      "BANKER";
-
-  }
-
-  else {
-
-    ball.textContent = "—";
-
-    text.textContent =
-      "SEM SINAL";
-  }
-
-
-  confidence.textContent =
-    result.confidence + "%";
-
-
-  bar.style.width =
-    result.confidence + "%";
-
-
-  reason.textContent =
-    result.reason;
+        reasonElement.textContent =
+            analysis.reason;
+    }
 }
 
 
-// ==============================
-// RENDER GERAL
-// ==============================
+// =====================================================
+// EVENTOS DOS BOTÕES
+// =====================================================
 
-function render() {
+document.addEventListener(
+    "click",
+    function (event) {
 
-  renderHistory();
+        const button =
+            event.target.closest(
+                "[data-result]"
+            );
 
-  renderStats();
+        if (button) {
 
-  renderSignal();
+            const result =
+                button.dataset.result;
+
+            addResult(result);
+
+            return;
+        }
+
+        if (
+            event.target.closest("#player")
+        ) {
+
+            addResult("P");
+
+            return;
+        }
+
+        if (
+            event.target.closest("#banker")
+        ) {
+
+            addResult("B");
+
+            return;
+        }
+
+        if (
+            event.target.closest("#tie")
+        ) {
+
+            addResult("E");
+
+            return;
+        }
+
+        if (
+            event.target.closest("#undo")
+        ) {
+
+            undoResult();
+
+            return;
+        }
+
+        if (
+            event.target.closest("#clear")
+        ) {
+
+            clearResults();
+
+            return;
+        }
+    }
+);
+
+
+// =====================================================
+// PWA - INSTALAÇÃO
+// =====================================================
+
+let deferredPrompt = null;
+
+window.addEventListener(
+    "beforeinstallprompt",
+    function (event) {
+
+        event.preventDefault();
+
+        deferredPrompt = event;
+
+        const installButton =
+            document.getElementById(
+                "install"
+            );
+
+        if (installButton) {
+            installButton.style.display =
+                "block";
+        }
+    }
+);
+
+
+const installButton =
+    document.getElementById("install");
+
+
+if (installButton) {
+
+    installButton.addEventListener(
+        "click",
+        async function () {
+
+            if (!deferredPrompt) {
+
+                alert(
+                    "A instalação ainda não está disponível."
+                );
+
+                return;
+            }
+
+            deferredPrompt.prompt();
+
+            const choice =
+                await deferredPrompt.userChoice;
+
+            if (
+                choice.outcome ===
+                "accepted"
+            ) {
+
+                installButton.style.display =
+                    "none";
+            }
+
+            deferredPrompt = null;
+        }
+    );
 }
 
 
-// ==============================
-// INICIAR
-// ==============================
+window.addEventListener(
+    "appinstalled",
+    function () {
 
-render();
+        deferredPrompt = null;
+
+        if (installButton) {
+
+            installButton.style.display =
+                "none";
+        }
+    }
+);
+
+
+// =====================================================
+// SERVICE WORKER
+// =====================================================
+
+if (
+    "serviceWorker" in navigator
+) {
+
+    window.addEventListener(
+        "load",
+        function () {
+
+            navigator.serviceWorker
+                .register("./sw.js")
+                .then(function () {
+
+                    console.log(
+                        "Bac Bo: Service Worker ativo."
+                    );
+
+                })
+                .catch(function (error) {
+
+                    console.warn(
+                        "Service Worker:",
+                        error
+                    );
+                });
+        }
+    );
+}
+
+
+// =====================================================
+// ATUALIZAÇÃO GERAL
+// =====================================================
+
+function updateApp() {
+
+    renderHistory();
+
+    updateStats();
+
+    updateSignal();
+}
+
+
+// =====================================================
+// INICIALIZAÇÃO
+// =====================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        updateApp();
+
+        console.log(
+            "Bac Bo Live iniciado."
+        );
+    }
+);
+
+
+// =====================================================
+// API GLOBAL
+// =====================================================
+
+window.BacBoApp = {
+
+    addResult,
+    undoResult,
+    clearResults,
+    updateApp,
+
+    getHistory: function () {
+        return [...results];
+    },
+
+    getStats: function () {
+        return getCounts();
+    },
+
+    getAnalysis: function () {
+        return analyse();
+    }
+};
