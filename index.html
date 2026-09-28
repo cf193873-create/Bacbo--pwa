@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+  <title>Bac Bo Analisador</title>
+</head>
+
+<body>
+<main class="app">
+
+  <header>
+    <div>
+      <h1>Bac Bo</h1>
+      <p>Analisador estatístico</p>
+    </div>
+    <button id="install" hidden>Instalar</button>
+  </header>
+
+  <section class="card signal">
+    <small>INDICADOR</small>
+    <strong id="signal">Aguardando resultados</strong>
+    <span id="confidence"></span>
+    <em>Indicador estatístico — não garante o próximo resultado.</em>
+  </section>
+
+  <section class="card">
+    <h2>Registar resultado</h2>
+    <div class="buttons">
+      <button class="p" data-r="P">P</button>
+      <button class="b" data-r="B">B</button>
+      <button class="e" data-r="E">E</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <h2>Histórico</h2>
+      <button id="undo">Desfazer</button>
+    </div>
+
+    <div id="history"></div>
+
+    <button id="clear">Limpar histórico</button>
+  </section>
+
+  <section class="stats">
+    <div class="card">
+      <b id="cp">0</b>
+      Player
+    </div>
+
+    <div class="card">
+      <b id="cb">0</b>
+      Banker
+    </div>
+
+    <div class="card">
+      <b id="ce">0</b>
+      Empates
+    </div>
+
+    <div class="card">
+      <b id="total">0</b>
+      Total
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Sequência recente</h2>
+    <p id="streak">—</p>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
