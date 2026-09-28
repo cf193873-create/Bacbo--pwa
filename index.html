@@ -4,50 +4,119 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#111827">
+
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="style.css">
-  <title>Bac Bo Analisador</title>
+
+  <title>Bac Bo Monitor</title>
 </head>
 
 <body>
+
 <main class="app">
 
   <header>
     <div>
       <h1>Bac Bo</h1>
-      <p>Analisador estatístico</p>
+      <p>Monitor + Sinal Estatístico</p>
     </div>
-    <button id="install" hidden>Instalar</button>
+
+    <button id="install" hidden>
+      Instalar
+    </button>
   </header>
 
+
+  <!-- MONITOR -->
+
   <section class="card signal">
-    <small>INDICADOR</small>
-    <strong id="signal">Aguardando resultados</strong>
+
+    <small>MONITOR</small>
+
+    <strong id="signal">
+      Aguardando resultados
+    </strong>
+
     <span id="confidence"></span>
-    <em>Indicador estatístico — não garante o próximo resultado.</em>
+
+    <em>
+      Análise estatística baseada no histórico.
+    </em>
+
   </section>
 
+
+  <!-- ALERTA -->
+
   <section class="card">
+
+    <h2>Indicador de entrada</h2>
+
+    <div id="alert">
+      Aguardando dados suficientes
+    </div>
+
+    <p id="reason">
+      Registe pelo menos alguns resultados.
+    </p>
+
+  </section>
+
+
+  <!-- RESULTADO -->
+
+  <section class="card">
+
     <h2>Registar resultado</h2>
+
     <div class="buttons">
-      <button class="p" data-r="P">P</button>
-      <button class="b" data-r="B">B</button>
-      <button class="e" data-r="E">E</button>
+
+      <button class="p" data-r="P">
+        P
+      </button>
+
+      <button class="b" data-r="B">
+        B
+      </button>
+
+      <button class="e" data-r="E">
+        E
+      </button>
+
     </div>
+
   </section>
+
+
+  <!-- HISTÓRICO -->
 
   <section class="card">
+
     <div class="row">
+
       <h2>Histórico</h2>
-      <button id="undo">Desfazer</button>
+
+      <button id="undo">
+        Desfazer
+      </button>
+
     </div>
 
-    <div id="history"></div>
+    <div id="history">
+      Sem resultados
+    </div>
 
-    <button id="clear">Limpar histórico</button>
+    <button id="clear">
+      Limpar histórico
+    </button>
+
   </section>
+
+
+  <!-- ESTATÍSTICAS -->
 
   <section class="stats">
+
     <div class="card">
       <b id="cp">0</b>
       Player
@@ -67,15 +136,50 @@
       <b id="total">0</b>
       Total
     </div>
+
   </section>
 
+
+  <!-- SEQUÊNCIA -->
+
   <section class="card">
-    <h2>Sequência recente</h2>
-    <p id="streak">—</p>
+
+    <h2>Sequência atual</h2>
+
+    <p id="streak">
+      —
+    </p>
+
   </section>
+
+
+  <!-- ANÁLISE -->
+
+  <section class="card">
+
+    <h2>Análise recente</h2>
+
+    <p id="analysis">
+      Ainda não existem dados suficientes.
+    </p>
+
+  </section>
+
+
+  <footer>
+
+    <small>
+      Este aplicativo apresenta estatísticas e tendências
+      do histórico introduzido pelo utilizador.
+      Não garante o resultado da próxima rodada.
+    </small>
+
+  </footer>
 
 </main>
 
+
 <script src="app.js"></script>
+
 </body>
-</html>
+    </html>
