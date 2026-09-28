@@ -1,310 +1,419 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07100d">
-  <meta name="description" content="Bac Bo Signal Bot - análise estatística">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <meta name="theme-color" content="#080b12">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <title>Bac Bo Signal</title>
+
   <link rel="manifest" href="manifest.json">
-  <title>Bac Bo Signal Bot</title>
 
   <style>
-    :root {
-      --bg:#050a09;
-      --panel:#0c1212;
-      --line:#164b31;
-      --green:#16e66d;
-      --text:#b8f2c9;
-      --muted:#579b72;
-      --blue:#1597e5;
-      --orange:#ff9d00;
-      --red:#ed4169;
-    }
-
     * {
-      box-sizing:border-box;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      margin:0;
-      min-height:100vh;
+      font-family: Arial, Helvetica, sans-serif;
       background:
-        radial-gradient(circle at 50% 20%,#07331d 0,#07100d 42%,#030706 100%);
-      color:var(--text);
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    }
-
-    body:before {
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:.10;
-      background:repeating-linear-gradient(
-        0deg,
-        transparent 0 3px,
-        #19d86b 4px,
-        #19d86b 5px
-      );
+        radial-gradient(circle at top, #182033 0%, #080b12 45%, #05070b 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
     .app {
-      max-width:720px;
-      margin:auto;
-      padding-bottom:30px;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 16px;
     }
 
-    .top {
-      padding:24px 20px 18px;
-      border-bottom:1px solid #123e2a;
-      background:#080e0d;
+    /* CABEÇALHO */
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
     }
 
-    .brand {
-      font-size:30px;
-      font-weight:900;
-      letter-spacing:2px;
-      color:#14e967;
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .sub {
-      color:#559a70;
-      margin-top:2px;
-      font-size:14px;
-      letter-spacing:1px;
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #00d4ff, #6c3cff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      box-shadow: 0 0 22px rgba(0, 212, 255, .25);
     }
 
-    .online {
-      float:right;
-      margin-top:-38px;
-      border:1px solid #1b5c3a;
-      border-radius:30px;
-      padding:10px 14px;
-      color:var(--green);
+    .title {
+      font-size: 21px;
+      font-weight: 800;
     }
 
-    .online b {
-      font-size:18px;
+    .subtitle {
+      color: #8e98aa;
+      font-size: 12px;
+      margin-top: 3px;
     }
 
-    .card {
-      margin:18px 18px 0;
-      padding:18px;
-      border:1px solid #155b38;
-      border-radius:20px;
-      background:linear-gradient(145deg,#101817,#080d0d);
-      box-shadow:0 0 25px #062c1a;
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 20px;
+      background: rgba(0, 255, 140, .08);
+      color: #00e88a;
+      font-size: 11px;
+      font-weight: bold;
     }
 
-    .label {
-      font-size:12px;
-      color:#579b72;
-      text-transform:uppercase;
-      letter-spacing:1.5px;
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #00e88a;
+      box-shadow: 0 0 8px #00e88a;
     }
 
-    .signal {
-      display:flex;
-      align-items:center;
-      gap:14px;
-      margin-top:8px;
+    /* CARTÃO DE SINAL */
+
+    .signal-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      padding: 22px 18px;
+      margin-bottom: 16px;
+      background: linear-gradient(
+        145deg,
+        rgba(24,31,48,.96),
+        rgba(11,15,24,.98)
+      );
+      box-shadow: 0 15px 40px rgba(0,0,0,.35);
     }
 
-    .signal-ball {
-      width:62px;
-      height:62px;
-      min-width:62px;
-      border-radius:50%;
-      display:grid;
-      place-items:center;
-      font-size:25px;
-      font-weight:900;
-      background:#123c28;
-      border:2px solid var(--green);
+    .signal-card::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -80px;
+      top: -80px;
+      border-radius: 50%;
+      background: rgba(108,60,255,.12);
+      filter: blur(20px);
+    }
+
+    .signal-label {
+      color: #8e98aa;
+      text-align: center;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
     }
 
     .signal-main {
-      font-size:27px;
-      font-weight:900;
-      color:#d4ffe1;
+      text-align: center;
+      margin: 9px 0;
+    }
+
+    #signalValue {
+      font-size: 52px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .signal-description {
+      text-align: center;
+      color: #aab3c3;
+      font-size: 13px;
+      margin-top: 8px;
     }
 
     .confidence {
-      margin-left:auto;
-      text-align:right;
+      margin-top: 17px;
     }
 
-    .confidence strong {
-      font-size:23px;
-      color:var(--green);
+    .confidence-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #8993a5;
+      margin-bottom: 7px;
     }
 
-    .bar {
-      height:8px;
-      background:#15221d;
-      border-radius:9px;
-      overflow:hidden;
-      margin-top:12px;
+    .confidence-bar {
+      height: 8px;
+      width: 100%;
+      border-radius: 20px;
+      background: #242a38;
+      overflow: hidden;
     }
 
-    .bar > i {
-      display:block;
-      height:100%;
-      background:#16e66d;
-      width:0%;
-      transition:.3s;
+    #confidenceFill {
+      width: 0%;
+      height: 100%;
+      border-radius: 20px;
+      transition: width .4s ease;
+      background: linear-gradient(90deg, #00c6ff, #7a5cff);
     }
 
-    .hint {
-      margin-top:8px;
-      color:#6bb789;
-      font-size:13px;
-    }
+    /* HISTÓRICO */
 
     .section-title {
-      margin:24px 18px 10px;
-      font-weight:800;
-      color:#8ddca7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 2px 10px;
     }
 
-    .history {
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      padding:0 18px;
+    .section-title h2 {
+      font-size: 15px;
     }
 
-    .dot {
-      width:39px;
-      height:39px;
-      border-radius:50%;
-      display:grid;
-      place-items:center;
-      font-weight:900;
-      color:white;
-      border:2px solid #ffffff25;
+    .section-title span {
+      color: #707b8e;
+      font-size: 11px;
     }
 
-    .p {
-      background:var(--blue);
+    .history-card {
+      background: rgba(16,21,32,.88);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 94px;
     }
 
-    .b {
-      background:var(--orange);
-      color:#1c1300;
+    #history {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
     }
 
-    .e {
-      background:var(--red);
+    .history-empty {
+      width: 100%;
+      text-align: center;
+      color: #687386;
+      font-size: 12px;
+      padding: 20px 5px;
     }
 
-    .inputs {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
-      padding:0 18px;
+    .result-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      border: 2px solid rgba(255,255,255,.12);
+      animation: pop .2s ease;
     }
 
-    .btn {
-      border:0;
-      border-radius:15px;
-      padding:16px 8px;
-      font-size:16px;
-      font-weight:900;
-      color:white;
-      box-shadow:0 6px 16px #0008;
+    .result-player {
+      background: rgba(0,150,255,.18);
+      border-color: #159cff;
+      color: #43b7ff;
     }
 
-    .btn:active {
-      transform:scale(.97);
+    .result-banker {
+      background: rgba(255,54,91,.18);
+      border-color: #ff365b;
+      color: #ff6680;
     }
 
-    .btn.p {
-      background:#168ed7;
+    .result-tie {
+      background: rgba(170,91,255,.18);
+      border-color: #a95cff;
+      color: #c18bff;
     }
 
-    .btn.b {
-      background:#e98e00;
+    @keyframes pop {
+      from {
+        transform: scale(.6);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
-    .btn.e {
-      background:#df3d64;
+    /* BOTÕES */
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
     }
 
-    .stats {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
+    .result-btn {
+      height: 68px;
+      border: 0;
+      border-radius: 17px;
+      color: white;
+      font-size: 25px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .12s ease, filter .12s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    }
+
+    .result-btn:active {
+      transform: scale(.94);
+    }
+
+    .player-btn {
+      background: linear-gradient(145deg, #087dcc, #04548f);
+    }
+
+    .banker-btn {
+      background: linear-gradient(145deg, #d92e4e, #911c34);
+    }
+
+    .tie-btn {
+      background: linear-gradient(145deg, #9149d8, #5e2994);
+    }
+
+    .btn-small {
+      display: block;
+      font-size: 10px;
+      font-weight: normal;
+      opacity: .75;
+      margin-top: 3px;
+    }
+
+    /* ESTATÍSTICAS */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
     }
 
     .stat {
-      text-align:center;
-      padding:14px 8px;
-      background:#0a1210;
-      border:1px solid #174b32;
-      border-radius:14px;
+      background: rgba(16,21,32,.88);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px;
+      padding: 14px 8px;
+      text-align: center;
     }
 
-    .stat b {
-      display:block;
-      font-size:22px;
-      color:#bfffd0;
+    .stat-value {
+      font-size: 22px;
+      font-weight: 900;
     }
 
-    .stat span {
-      font-size:11px;
-      color:#579b72;
+    .stat-label {
+      color: #778195;
+      font-size: 10px;
+      margin-top: 5px;
     }
 
-    .actions {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:12px;
+    /* ANÁLISE */
+
+    .analysis-card {
+      background: rgba(16,21,32,.88);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 12px;
     }
 
-    .secondary {
-      background:#111b18;
-      color:#9be0af;
-      border:1px solid #245b3d;
-      border-radius:13px;
-      padding:13px;
-      font-weight:800;
+    .analysis-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
     }
 
-    .warning {
-      margin-top:12px;
-      color:#c9d7ce;
-      font-size:12px;
-      line-height:1.45;
+    .analysis-row:last-child {
+      border-bottom: none;
     }
+
+    .analysis-name {
+      color: #8791a3;
+      font-size: 12px;
+    }
+
+    .analysis-value {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    /* CONTROLOS */
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .control-btn {
+      height: 45px;
+      border-radius: 13px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: #151b28;
+      color: #cbd2df;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .control-btn:active {
+      transform: scale(.97);
+    }
+
+    /* RODAPÉ */
 
     .footer {
-      text-align:center;
-      color:#477c5d;
-      font-size:11px;
-      margin:24px;
+      text-align: center;
+      color: #4f596b;
+      font-size: 9px;
+      line-height: 1.5;
+      margin: 22px 10px 10px;
     }
 
-    @media(max-width:420px) {
-      .brand {
-        font-size:25px;
+    /* RESPONSIVO */
+
+    @media (max-width: 360px) {
+      .app {
+        padding: 12px;
       }
 
-      .online {
-        font-size:12px;
+      #signalValue {
+        font-size: 45px;
       }
 
-      .signal-main {
-        font-size:21px;
-      }
-
-      .confidence strong {
-        font-size:19px;
-      }
-
-      .btn {
-        font-size:14px;
+      .result-circle {
+        width: 34px;
+        height: 34px;
       }
     }
   </style>
@@ -312,134 +421,208 @@
 
 <body>
 
-<div class="app">
+  <main class="app">
 
-  <header class="top">
-    <div class="brand">BAC BO SIGNAL</div>
-    <div class="sub">ANÁLISE ESTATÍSTICA v2.0</div>
+    <!-- CABEÇALHO -->
+    <header class="header">
+      <div class="logo-area">
+        <div class="logo">BB</div>
 
-    <div class="online">
-      ● <b id="roundCount">0</b> rodadas
-    </div>
-  </header>
-
-
-  <section class="card">
-
-    <div class="label">
-      Sinal calculado
-    </div>
-
-    <div class="signal">
-
-      <div id="signalBall" class="signal-ball">
-        —
+        <div>
+          <div class="title">Bac Bo Signal</div>
+          <div class="subtitle">Análise de resultados</div>
+        </div>
       </div>
 
-      <div>
-        <div id="signalText" class="signal-main">
-          SEM SINAL
-        </div>
+      <div class="status">
+        <span class="status-dot"></span>
+        ONLINE
+      </div>
+    </header>
 
-        <div id="signalReason" class="hint">
-          Introduza pelo menos 10 resultados.
-        </div>
+
+    <!-- SINAL -->
+    <section class="signal-card">
+
+      <div class="signal-label">
+        Próximo sinal
+      </div>
+
+      <div class="signal-main">
+        <div id="signalValue">—</div>
+      </div>
+
+      <div id="signalDescription" class="signal-description">
+        Registe alguns resultados para iniciar a análise.
       </div>
 
       <div class="confidence">
-        <strong id="confidence">0%</strong>
-        <div class="label">confiança</div>
+
+        <div class="confidence-header">
+          <span>Confiança estatística</span>
+          <span id="confidenceText">0%</span>
+        </div>
+
+        <div class="confidence-bar">
+          <div id="confidenceFill"></div>
+        </div>
+
       </div>
 
+    </section>
+
+
+    <!-- HISTÓRICO -->
+    <div class="section-title">
+      <h2>Histórico</h2>
+      <span id="roundCount">0 jogadas</span>
     </div>
 
-    <div class="bar">
-      <i id="confidenceBar"></i>
-    </div>
+    <section class="history-card">
 
-    <div class="warning">
-      O sinal é uma análise estatística e não uma garantia de resultado.
-      Resultados anteriores não determinam a próxima rodada.
-    </div>
-
-  </section>
-
-
-  <div class="section-title">
-    Histórico recente
-  </div>
-
-  <div id="history" class="history"></div>
-
-
-  <div class="section-title">
-    Adicionar resultado
-  </div>
-
-  <div class="inputs">
-
-    <button class="btn p" onclick="addResult('P')">
-      P — PLAYER
-    </button>
-
-    <button class="btn b" onclick="addResult('B')">
-      B — BANKER
-    </button>
-
-    <button class="btn e" onclick="addResult('E')">
-      E — EMPATE
-    </button>
-
-  </div>
-
-
-  <section class="card">
-
-    <div class="section-title" style="margin:0 0 10px">
-      Estatísticas
-    </div>
-
-    <div class="stats">
-
-      <div class="stat">
-        <b id="pPct">0%</b>
-        <span>PLAYER</span>
+      <div id="history">
+        <div class="history-empty">
+          Ainda não existem resultados.
+        </div>
       </div>
 
-      <div class="stat">
-        <b id="bPct">0%</b>
-        <span>BANKER</span>
-      </div>
+    </section>
 
-      <div class="stat">
-        <b id="ePct">0%</b>
-        <span>EMPATE</span>
-      </div>
 
-    </div>
+    <!-- BOTÕES P B E -->
+    <section class="buttons">
 
-    <div class="actions">
-
-      <button class="secondary" onclick="undo()">
-        ↶ Desfazer
+      <button
+        id="playerBtn"
+        class="result-btn player-btn"
+        type="button">
+        P
+        <span class="btn-small">PLAYER</span>
       </button>
 
-      <button class="secondary" onclick="clearAll()">
-        🗑 Limpar
+      <button
+        id="bankerBtn"
+        class="result-btn banker-btn"
+        type="button">
+        B
+        <span class="btn-small">BANKER</span>
       </button>
 
+      <button
+        id="tieBtn"
+        class="result-btn tie-btn"
+        type="button">
+        E
+        <span class="btn-small">EMPATE</span>
+      </button>
+
+    </section>
+
+
+    <!-- ESTATÍSTICAS -->
+    <div class="section-title">
+      <h2>Estatísticas</h2>
+      <span>Tempo real</span>
     </div>
 
-  </section>
+    <section class="stats-grid">
+
+      <div class="stat">
+        <div id="playerPercent" class="stat-value">0%</div>
+        <div class="stat-label">PLAYER</div>
+      </div>
+
+      <div class="stat">
+        <div id="bankerPercent" class="stat-value">0%</div>
+        <div class="stat-label">BANKER</div>
+      </div>
+
+      <div class="stat">
+        <div id="tiePercent" class="stat-value">0%</div>
+        <div class="stat-label">EMPATE</div>
+      </div>
+
+    </section>
 
 
-  <div class="footer">
-    Use com responsabilidade • Ferramenta de análise, não de garantia
-  </div>
+    <!-- ANÁLISE -->
+    <section class="analysis-card">
 
-</div>
+      <div class="analysis-row">
+        <span class="analysis-name">
+          Total de resultados
+        </span>
 
-<script src="app.js"></script>
+        <span id="totalResults" class="analysis-value">
+          0
+        </span>
+      </div>
+
+      <div class="analysis-row">
+        <span class="analysis-name">
+          Último resultado
+        </span>
+
+        <span id="lastResult" class="analysis-value">
+          —
+        </span>
+      </div>
+
+      <div class="analysis-row">
+        <span class="analysis-name">
+          Sequência atual
+        </span>
+
+        <span id="currentStreak" class="analysis-value">
+          —
+        </span>
+      </div>
+
+      <div class="analysis-row">
+        <span class="analysis-name">
+          Tendência
+        </span>
+
+        <span id="trend" class="analysis-value">
+          Aguardando dados
+        </span>
+      </div>
+
+    </section>
+
+
+    <!-- CONTROLOS -->
+    <section class="controls">
+
+      <button
+        id="undoBtn"
+        class="control-btn"
+        type="button">
+        ↩ Desfazer
+      </button>
+
+      <button
+        id="clearBtn"
+        class="control-btn"
+        type="button">
+        🗑 Limpar histórico
+      </button>
+
+    </section>
+
+
+    <!-- RODAPÉ -->
+    <footer class="footer">
+      Bac Bo Signal<br>
+      Ferramenta de análise estatística e registo de resultados.<br>
+      Os sinais são estimativas e não garantem resultados.
+    </footer>
+
+  </main>
+
+
+  <!-- JAVASCRIPT -->
+  <script src="app.js"></script>
 
 </body>
-          </html>
+  </html>
